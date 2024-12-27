@@ -1,182 +1,43 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>KANG Invaders</title>
+/*  
+   spaceinvaders.js
+   (extrait pertinent)
+*/
 
-    <!-- Indique au mobile de ne pas zoomer n'importe comment -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+/*  
+   1) GESTION DES CONSTANTES & IMAGES
+*/
 
-    <link rel="stylesheet" type="text/css" href="css/core.css" />
-    <link rel="stylesheet" type="text/css" href="css/typeography.css" />
-    <style>
-      body, html {
-        width: 100%;
-        height: 100%;
-        margin: 0;
-        padding: 0;
-        overflow: hidden;
-      }
+// On enlève le const SCALE=1.6, PLAYER_SCALE=3.0 et on va faire un let
+let SCALE = 1.6;
+let PLAYER_SCALE = 3.0;
 
-      #starfield {
-        width: 100%;
-        height: 100%;
-        z-index: -1;
-        position: absolute;
-        left: 0;
-        top: 0;
-      }
+// On détecte si on est sur mobile (<900px)
+if (window.innerWidth < 900) {
+  // On diminue les scales pour éviter que le texte ou le ship déborde
+  SCALE = 1.0;       // ou 0.8 si besoin
+  PLAYER_SCALE = 2.0; // un peu plus grand que le reste
+}
 
-      /* Conteneur centré : 900px si possible */
-      #gamecontainer {
-        width: 900px;
-        margin: 0 auto;
-      }
+// (Le reste identique : chargement images...)
 
-      /* Canvas : 900×600 en mode desktop */
-      #gameCanvas {
-        width: 900px;
-        height: 600px;
-      }
 
-      /* Contrôles mobiles */
-      #mobileControls {
-        width: 900px;
-        margin: 0 auto;
-        text-align: center;
-        margin-top: 10px;
-      }
+/*  
+   2) CLASSE PRINCIPALE : Game
+*/
+function Game() {
 
-      #mobileControls button {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        font-size: 28px;
-        margin: 0 15px;
-        background: #f2f2f2;
-        border: 2px solid #ccc;
-        cursor: pointer;
-      }
-      #mobileControls button:active {
-        background: #ddd;
-      }
-
-      /* Media Query: cacher les boutons sur un appareil avec souris (desktop) */
-      @media (any-pointer: fine) and (hover: hover) {
-        #mobileControls {
-          display: none; /* On masque pour la version desktop */
-        }
-      }
-    </style>
-  </head>
-
-  <body>
-    <div id="starfield"></div>
-
-    <div id="gamecontainer">
-      <canvas id="gameCanvas"></canvas>
-    </div>
-
-    <!-- Boutons mobiles (cachés sur PC) -->
-    <div id="mobileControls">
-      <button id="btnLeft">◀</button>
-      <button id="btnFire">🔥</button>
-      <button id="btnRight">▶</button>
-    </div>
-
-    <script src="js/starfield.js"></script>
-    <script src="js/spaceinvaders.js"></script>
-    <script>
-      // 1) Lancement du starfield
-      var container = document.getElementById("starfield");
-      var starfield = new Starfield();
-      starfield.initialise(container);
-      starfield.start();
-
-      // 2) Canvas
-      var canvas = document.getElementById("gameCanvas");
-
-      // Déterminer si on est sur un écran < 900 px
-      var screenWidth = window.innerWidth; 
-      var desiredWidth = 900;
-      var desiredHeight = 600;
-
-      if(screenWidth < 900) {
-        // Sur mobile (ou petit écran), on scale le jeu
-        desiredWidth = screenWidth;           // On prend la largeur dispo
-        desiredHeight = Math.floor(desiredWidth * 2/3); // Ratio 3:2
-      }
-
-      canvas.width = desiredWidth;
-      canvas.height = desiredHeight;
-
-      // 3) Créer le jeu
-      var game = new Game();
-      // Initialiser le jeu
-      game.initialise(canvas);
-      // Ajuster la config du jeu pour qu'il s'adapte à la vraie taille
-      game.config.gameWidth = desiredWidth;
-      game.config.gameHeight = desiredHeight;
-      // On recalcule aussi gameBounds
-      game.gameBounds = {
-        left: 50,
-        right: desiredWidth - 50,
-        top: 80,
-        bottom: desiredHeight - 100
-      };
-
-      // 4) Start
-      game.start();
-
-      // 5) Événements clavier (PC)
-      window.addEventListener("keydown", function(e) {
-        var keycode = e.which || e.keyCode;
-        if (keycode == 37 || keycode == 39 || keycode == 32) {
-          e.preventDefault();
-        }
-        game.keyDown(keycode);
-      });
-      window.addEventListener("keyup", function(e) {
-        var keycode = e.which || e.keyCode;
-        game.keyUp(keycode);
-      });
-
-      // (Optionnel) - Si tu ne veux PAS du tout de tactile global, commente
-      // window.addEventListener("touchstart", function (e) { ... });
-      // window.addEventListener("touchend", function (e) { ... });
-      // window.addEventListener("touchmove", function (e) { ... });
-
-      // 6) Boutons mobiles => touches virtuelles
-      var btnLeft  = document.getElementById("btnLeft");
-      var btnRight = document.getElementById("btnRight");
-      var btnFire  = document.getElementById("btnFire");
-
-      // Touchstart => activer la touche
-      btnLeft.addEventListener("touchstart", function(e) {
-        e.preventDefault();
-        game.keyDown(37); // KEY_LEFT
-      });
-      btnRight.addEventListener("touchstart", function(e) {
-        e.preventDefault();
-        game.keyDown(39); // KEY_RIGHT
-      });
-      btnFire.addEventListener("touchstart", function(e) {
-        e.preventDefault();
-        game.keyDown(32); // KEY_SPACE
-      });
-
-      // Touchend => relâcher
-      btnLeft.addEventListener("touchend", function(e) {
-        e.preventDefault();
-        game.keyUp(37);
-      });
-      btnRight.addEventListener("touchend", function(e) {
-        e.preventDefault();
-        game.keyUp(39);
-      });
-      btnFire.addEventListener("touchend", function(e) {
-        e.preventDefault();
-        game.keyUp(32);
-      });
-    </script>
-  </body>
-</html>
+    this.config = {
+        bombRate: 0.05,
+        bombMinVelocity: 50 * SCALE,
+        bombMaxVelocity: 50 * SCALE,
+        invaderInitialVelocity: 25 * SCALE,
+        invaderAcceleration: 0,
+        invaderDropDistance: 20 * SCALE,
+        rocketVelocity: 120 * SCALE,
+        rocketMaxFireRate: 2,
+        // Largeur/hauteur : on initialisera vraiment plus tard (voir initialise)
+        gameWidth: 400 * SCALE,
+        gameHeight: 300 * SCALE,
+        fps: 50,
+        debugMode: false,
+        i
