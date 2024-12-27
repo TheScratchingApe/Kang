@@ -15,9 +15,9 @@ const SCALE = 1.6;
 const PLAYER_SCALE = 3.0;
 
 if (window.innerWidth < 900) {
-  SCALE = 1.0;   
-  PLAYER_SCALE = 2.0; 
-}
+    SCALE = 1.0;
+    PLAYER_SCALE = 2.0; 
+  }
 
 // -- Images du joueur et des invaders --
 
