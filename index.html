@@ -2,9 +2,13 @@
 <html>
   <head>
     <title>KANG Invaders</title>
+    <!-- Indique au navigateur mobile d'utiliser la largeur de l'appareil -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <link rel="stylesheet" type="text/css" href="css/core.css" />
     <link rel="stylesheet" type="text/css" href="css/typeography.css" />
     <style>
+      /* 1) Styles de base */
       body, html {
         width: 100%;
         height: 100%;
@@ -13,6 +17,7 @@
         overflow: hidden;
       }
 
+      /* Fond étoilé */
       #starfield {
         width: 100%;
         height: 100%;
@@ -22,27 +27,29 @@
         top: 0;
       }
 
+      /* Container du jeu (900px) */
       #gamecontainer {
         width: 900px;
         margin: 0 auto;
       }
 
+      /* Canvas du jeu (900×600) */
       #gameCanvas {
         width: 900px;
         height: 600px;
       }
 
-      /* Conteneur des boutons mobiles */
+      /* 2) Boutons mobiles */
       #mobileControls {
         width: 900px;
         margin: 0 auto;
         text-align: center;
         margin-top: 10px;
-        /* AFFICHAGE PAR DÉFAUT */
+
+        /* Par défaut, on les affiche */
         display: block;
       }
 
-      /* Style des boutons */
       #mobileControls button {
         width: 60px;
         height: 60px;
@@ -53,16 +60,11 @@
         border: 2px solid #ccc;
         cursor: pointer;
       }
-
       #mobileControls button:active {
         background: #ddd;
       }
 
-      /*
-        MEDIA QUERY : 
-        Si la fenêtre (ou l'écran) a une largeur >= 901px,
-        on suppose un PC => on cache les boutons.
-      */
+      /* 3) Media query : si l'écran >= 901px, on cache les boutons */
       @media (min-width: 901px) {
         #mobileControls {
           display: none;
@@ -72,21 +74,25 @@
   </head>
 
   <body>
+    <!-- Champ d'étoiles -->
     <div id="starfield"></div>
 
+    <!-- Container principal : 900px -->
     <div id="gamecontainer">
       <canvas id="gameCanvas"></canvas>
     </div>
 
-    <!-- Boutons mobiles : affichés par défaut, cachés au-dessus de 900px -->
+    <!-- Boutons mobiles (affichés en dessous de 901px, cachés sinon) -->
     <div id="mobileControls">
       <button id="btnLeft">◀</button>
       <button id="btnFire">🔥</button>
       <button id="btnRight">▶</button>
     </div>
 
+    <!-- Script starfield + spaceinvaders -->
     <script src="js/starfield.js"></script>
     <script src="js/spaceinvaders.js"></script>
+
     <script>
       // 1) Starfield
       var container = document.getElementById("starfield");
@@ -99,39 +105,39 @@
       canvas.width = 900;
       canvas.height = 600;
 
-      // 3) Création et lancement du jeu
+      // 3) Création du jeu
       var game = new Game();
       game.initialise(canvas);
       game.start();
 
-      // 4) Écouteurs clavier (PC)
-      window.addEventListener("keydown", function (e) {
+      // 4) Gestion clavier (PC)
+      window.addEventListener("keydown", function(e) {
         var keycode = e.which || e.keyCode;
         if (keycode == 37 || keycode == 39 || keycode == 32) {
           e.preventDefault();
         }
         game.keyDown(keycode);
       });
-      window.addEventListener("keyup", function (e) {
+      window.addEventListener("keyup", function(e) {
         var keycode = e.which || e.keyCode;
         game.keyUp(keycode);
       });
 
-      // 5) Écouteurs tactiles globaux (pour le swipe ou le tap)
-      window.addEventListener("touchstart", function (e) {
+      // 5) Gestion tactile globale (pour swipe/tap éventuel)
+      window.addEventListener("touchstart", function(e) {
         game.touchstart(e);
       });
-      window.addEventListener("touchend", function (e) {
+      window.addEventListener("touchend", function(e) {
         game.touchend(e);
       });
-      window.addEventListener("touchmove", function (e) {
+      window.addEventListener("touchmove", function(e) {
         game.touchmove(e);
       });
 
-      // 6) Boutons mobiles : simulation de touches virtuelles
-      var btnLeft = document.getElementById("btnLeft");
+      // 6) Boutons mobiles => touches virtuelles
+      var btnLeft  = document.getElementById("btnLeft");
       var btnRight = document.getElementById("btnRight");
-      var btnFire = document.getElementById("btnFire");
+      var btnFire  = document.getElementById("btnFire");
 
       // Touchstart => activer la touche
       btnLeft.addEventListener("touchstart", function(e) {
@@ -162,7 +168,6 @@
       });
     </script>
 
-    <!-- Google Analytics (optionnel) -->
-    <!-- ... -->
+    <!-- Google Analytics ou autres scripts optionnels -->
   </body>
 </html>
