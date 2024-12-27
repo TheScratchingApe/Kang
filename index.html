@@ -2,13 +2,13 @@
 <html>
   <head>
     <title>KANG Invaders</title>
-    <!-- Indique au navigateur mobile d'utiliser la largeur de l'appareil -->
+    <!-- Affiche correctement le site sur mobile (viewport réel) -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link rel="stylesheet" type="text/css" href="css/core.css" />
     <link rel="stylesheet" type="text/css" href="css/typeography.css" />
     <style>
-      /* 1) Styles de base */
+      /* Styles de base */
       body, html {
         width: 100%;
         height: 100%;
@@ -27,7 +27,7 @@
         top: 0;
       }
 
-      /* Container du jeu (900px) */
+      /* Container de 900px pour le jeu */
       #gamecontainer {
         width: 900px;
         margin: 0 auto;
@@ -39,17 +39,18 @@
         height: 600px;
       }
 
-      /* 2) Boutons mobiles */
+      /* Boutons mobiles */
       #mobileControls {
         width: 900px;
         margin: 0 auto;
         text-align: center;
         margin-top: 10px;
 
-        /* Par défaut, on les affiche */
+        /* Toujours visibles */
         display: block;
       }
 
+      /* Style des boutons */
       #mobileControls button {
         width: 60px;
         height: 60px;
@@ -63,13 +64,6 @@
       #mobileControls button:active {
         background: #ddd;
       }
-
-      /* 3) Media query : si l'écran >= 901px, on cache les boutons */
-      @media (min-width: 901px) {
-        #mobileControls {
-          display: none;
-        }
-      }
     </style>
   </head>
 
@@ -77,24 +71,23 @@
     <!-- Champ d'étoiles -->
     <div id="starfield"></div>
 
-    <!-- Container principal : 900px -->
+    <!-- Container principal -->
     <div id="gamecontainer">
       <canvas id="gameCanvas"></canvas>
     </div>
 
-    <!-- Boutons mobiles (affichés en dessous de 901px, cachés sinon) -->
+    <!-- Boutons (toujours visibles) -->
     <div id="mobileControls">
       <button id="btnLeft">◀</button>
       <button id="btnFire">🔥</button>
       <button id="btnRight">▶</button>
     </div>
 
-    <!-- Script starfield + spaceinvaders -->
+    <!-- Scripts du jeu -->
     <script src="js/starfield.js"></script>
     <script src="js/spaceinvaders.js"></script>
-
     <script>
-      // 1) Starfield
+      // 1) Lancement du starfield
       var container = document.getElementById("starfield");
       var starfield = new Starfield();
       starfield.initialise(container);
@@ -105,7 +98,7 @@
       canvas.width = 900;
       canvas.height = 600;
 
-      // 3) Création du jeu
+      // 3) Création et lancement du jeu
       var game = new Game();
       game.initialise(canvas);
       game.start();
@@ -123,7 +116,7 @@
         game.keyUp(keycode);
       });
 
-      // 5) Gestion tactile globale (pour swipe/tap éventuel)
+      // 5) Événements tactiles globaux
       window.addEventListener("touchstart", function(e) {
         game.touchstart(e);
       });
@@ -134,7 +127,7 @@
         game.touchmove(e);
       });
 
-      // 6) Boutons mobiles => touches virtuelles
+      // 6) Boutons virtuels => touches
       var btnLeft  = document.getElementById("btnLeft");
       var btnRight = document.getElementById("btnRight");
       var btnFire  = document.getElementById("btnFire");
@@ -168,6 +161,6 @@
       });
     </script>
 
-    <!-- Google Analytics ou autres scripts optionnels -->
+    <!-- Google Analytics ou autre, optionnel -->
   </body>
 </html>
