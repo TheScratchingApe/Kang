@@ -2,7 +2,6 @@
 <html>
   <head>
     <title>KANG Invaders</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <link rel="stylesheet" type="text/css" href="css/core.css" />
     <link rel="stylesheet" type="text/css" href="css/typeography.css" />
     <style>
@@ -24,23 +23,20 @@
       }
 
       #gamecontainer {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-        height: 100%;
+        width: 900px;
+        margin: 0 auto;
       }
 
       #gameCanvas {
-        max-width: 100%;
-        height: auto;
-        aspect-ratio: 3 / 2; /* Maintenir le ratio 900x600 */
+        width: 900px;
+        height: 600px;
       }
 
       /* Contrôles mobiles */
       #mobileControls {
-        display: flex;
-        justify-content: center;
+        width: 900px;
+        margin: 0 auto;
+        text-align: center;
         margin-top: 10px;
       }
 
@@ -49,20 +45,19 @@
         height: 60px;
         border-radius: 50%;
         font-size: 28px;
-        margin: 0 10px;
+        margin: 0 15px;
         background: #f2f2f2;
         border: 2px solid #ccc;
         cursor: pointer;
       }
-
       #mobileControls button:active {
         background: #ddd;
       }
 
-      /* Masquer les boutons sur desktop */
+      /* Media Query: cacher les boutons sur un appareil avec souris (desktop) */
       @media (any-pointer: fine) and (hover: hover) {
         #mobileControls {
-          display: none;
+          display: none;  /* On masque pour la version desktop */
         }
       }
     </style>
@@ -74,7 +69,7 @@
       <canvas id="gameCanvas"></canvas>
     </div>
 
-    <!-- Boutons mobiles -->
+    <!-- Boutons mobiles (cachés sur PC via la media query) -->
     <div id="mobileControls">
       <button id="btnLeft">◀</button>
       <button id="btnFire">🔥</button>
@@ -84,81 +79,81 @@
     <script src="js/starfield.js"></script>
     <script src="js/spaceinvaders.js"></script>
     <script>
-      // 1) Lancer le starfield
+      // 1) Lancement du starfield
       var container = document.getElementById("starfield");
       var starfield = new Starfield();
       starfield.initialise(container);
       starfield.start();
 
-      // 2) Configurer le canvas
+      // 2) Canvas
       var canvas = document.getElementById("gameCanvas");
-      var isMobile = window.matchMedia("(max-width: 600px)").matches;
+      canvas.width = 900;
+      canvas.height = 600;
 
-      if (isMobile) {
-        canvas.width = window.innerWidth * 0.9; // Ajuster à 90% de l'écran mobile
-        canvas.height = canvas.width * 2 / 3; // Ratio 3:2
-      } else {
-        canvas.width = 900;
-        canvas.height = 600;
-      }
-
-      // Centrer le conteneur
-      var gameContainer = document.getElementById("gamecontainer");
-      gameContainer.style.width = canvas.width + "px";
-
-      // 3) Initialiser le jeu
+      // 3) Créer le jeu
       var game = new Game();
       game.initialise(canvas);
       game.start();
 
-      // 4) Événements clavier
+      // 4) Événements clavier (PC)
       window.addEventListener("keydown", function (e) {
-        var keycode = e.which || e.keyCode;
+        var keycode = e.which || window.event.keyCode;
         if (keycode == 37 || keycode == 39 || keycode == 32) {
           e.preventDefault();
         }
         game.keyDown(keycode);
       });
-
       window.addEventListener("keyup", function (e) {
-        var keycode = e.which || e.keyCode;
+        var keycode = e.which || window.event.keyCode;
         game.keyUp(keycode);
       });
 
-      // 5) Boutons mobiles => contrôles
+      // 5) Événements tactiles globaux
+      window.addEventListener("touchstart", function (e) {
+        game.touchstart(e);
+      });
+      window.addEventListener("touchend", function (e) {
+        game.touchend(e);
+      });
+      window.addEventListener("touchmove", function (e) {
+        game.touchmove(e);
+      });
+
+      // 6) Boutons mobiles => touches virtuelles
       var btnLeft = document.getElementById("btnLeft");
       var btnRight = document.getElementById("btnRight");
       var btnFire = document.getElementById("btnFire");
 
-      btnLeft.addEventListener("touchstart", function (e) {
+      // Touchstart => activer la touche
+      btnLeft.addEventListener("touchstart", function(e) {
         e.preventDefault();
-        game.pressedKeys[37] = true;
+        game.pressedKeys[37] = true; // KEY_LEFT
+      });
+      btnRight.addEventListener("touchstart", function(e) {
+        e.preventDefault();
+        game.pressedKeys[39] = true; // KEY_RIGHT
+      });
+      btnFire.addEventListener("touchstart", function(e) {
+        e.preventDefault();
+        game.pressedKeys[32] = true; // KEY_SPACE
       });
 
-      btnRight.addEventListener("touchstart", function (e) {
-        e.preventDefault();
-        game.pressedKeys[39] = true;
-      });
-
-      btnFire.addEventListener("touchstart", function (e) {
-        e.preventDefault();
-        game.pressedKeys[32] = true;
-      });
-
-      btnLeft.addEventListener("touchend", function (e) {
+      // Touchend => désactiver la touche
+      btnLeft.addEventListener("touchend", function(e) {
         e.preventDefault();
         delete game.pressedKeys[37];
       });
-
-      btnRight.addEventListener("touchend", function (e) {
+      btnRight.addEventListener("touchend", function(e) {
         e.preventDefault();
         delete game.pressedKeys[39];
       });
-
-      btnFire.addEventListener("touchend", function (e) {
+      btnFire.addEventListener("touchend", function(e) {
         e.preventDefault();
         delete game.pressedKeys[32];
       });
     </script>
+
+    <!-- Google Analytics (optionnel) -->
+    <!-- ... -->
   </body>
 </html>
