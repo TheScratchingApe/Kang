@@ -1,43 +1,186 @@
-/*  
-   spaceinvaders.js
-   (extrait pertinent)
-*/
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>KANG Invaders</title>
 
-/*  
-   1) GESTION DES CONSTANTES & IMAGES
-*/
+    <!-- Permet de bien gérer l'affichage sur mobile, 
+         en évitant le zoom bizarre -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
 
-// On enlève le const SCALE=1.6, PLAYER_SCALE=3.0 et on va faire un let
-let SCALE = 1.6;
-let PLAYER_SCALE = 3.0;
+    <link rel="stylesheet" type="text/css" href="css/core.css" />
+    <link rel="stylesheet" type="text/css" href="css/typeography.css" />
+    <style>
+      /* Page : pas de scrollbars */
+      body, html {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background: #000; /* Optionnel */
+      }
 
-// On détecte si on est sur mobile (<900px)
-if (window.innerWidth < 900) {
-  // On diminue les scales pour éviter que le texte ou le ship déborde
-  SCALE = 1.0;       // ou 0.8 si besoin
-  PLAYER_SCALE = 2.0; // un peu plus grand que le reste
-}
+      /* Fond étoilé */
+      #starfield {
+        position: absolute;
+        left: 0; top: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+      }
 
-// (Le reste identique : chargement images...)
+      /* Container responsive */
+      #gamecontainer {
+        /* Occupe toute la largeur de l'écran, 
+           max 900px pour un grand écran */
+        width: 100%;
+        max-width: 900px;
+        margin: 0 auto;
+      }
 
+      /* 
+         Canvas :
+         - dimension logique fixée en JS (900×600)
+         - en CSS on le scale à width:100%, 
+           height:auto => ratio conservé
+      */
+      #gameCanvas {
+        display: block;
+        width: 100%;
+        height: auto;
+        background: #000; /* On force un fond noir */
+      }
 
-/*  
-   2) CLASSE PRINCIPALE : Game
-*/
-function Game() {
+      /* Boutons mobiles */
+      #mobileControls {
+        width: 100%;
+        max-width: 900px;
+        margin: 0 auto;
+        text-align: center;
+        margin-top: 10px;
+      }
 
-    this.config = {
-        bombRate: 0.05,
-        bombMinVelocity: 50 * SCALE,
-        bombMaxVelocity: 50 * SCALE,
-        invaderInitialVelocity: 25 * SCALE,
-        invaderAcceleration: 0,
-        invaderDropDistance: 20 * SCALE,
-        rocketVelocity: 120 * SCALE,
-        rocketMaxFireRate: 2,
-        // Largeur/hauteur : on initialisera vraiment plus tard (voir initialise)
-        gameWidth: 400 * SCALE,
-        gameHeight: 300 * SCALE,
-        fps: 50,
-        debugMode: false,
-        i
+      #mobileControls button {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        font-size: 28px;
+        margin: 0 15px;
+        background: #f2f2f2;
+        border: 2px solid #ccc;
+        cursor: pointer;
+      }
+      #mobileControls button:active {
+        background: #ddd;
+      }
+
+      /* On cache les boutons sur PC (desktop) */
+      @media (any-pointer: fine) and (hover: hover) {
+        #mobileControls {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Fond étoilé -->
+    <div id="starfield"></div>
+
+    <!-- Container responsive -->
+    <div id="gamecontainer">
+      <canvas id="gameCanvas"></canvas>
+    </div>
+
+    <!-- Boutons mobiles (affichés seulement sur mobile) -->
+    <div id="mobileControls">
+      <button id="btnLeft">◀</button>
+      <button id="btnFire">🔥</button>
+      <button id="btnRight">▶</button>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/starfield.js"></script>
+    <script src="js/spaceinvaders.js"></script>
+    <script>
+      // 1) Starfield
+      const starContainer = document.getElementById("starfield");
+      const starfield = new Starfield();
+      starfield.initialise(starContainer);
+      starfield.start();
+
+      // 2) Canvas
+      const canvas = document.getElementById("gameCanvas");
+
+      // Dimensions internes fixes => 900×600, 
+      // la logique du jeu pense qu'il a 900×600
+      canvas.width  = 900;
+      canvas.height = 600;
+
+      // 3) Création et initialisation du jeu
+      const game = new Game();
+      game.initialise(canvas);
+
+      // 4) On lance la boucle
+      game.start();
+
+      // 5) Événements clavier (PC)
+      window.addEventListener("keydown", function(e) {
+        const keycode = e.which || e.keyCode;
+        if (keycode === 37 || keycode === 39 || keycode === 32) {
+          e.preventDefault();
+        }
+        game.keyDown(keycode);
+      });
+      window.addEventListener("keyup", function(e) {
+        const keycode = e.which || e.keyCode;
+        game.keyUp(keycode);
+      });
+
+      // (Optionnel) - On peut commenter si on ne veut pas de 
+      // "swipe" global sur mobile
+      /*
+      window.addEventListener("touchstart", function(e){
+        game.touchstart(e);
+      });
+      window.addEventListener("touchend", function(e){
+        game.touchend(e);
+      });
+      window.addEventListener("touchmove", function(e){
+        game.touchmove(e);
+      });
+      */
+
+      // 6) Boutons mobiles => touches virtuelles
+      const btnLeft  = document.getElementById("btnLeft");
+      const btnRight = document.getElementById("btnRight");
+      const btnFire  = document.getElementById("btnFire");
+
+      btnLeft.addEventListener("touchstart", function(e){
+        e.preventDefault();
+        game.keyDown(37); // LEFT
+      });
+      btnLeft.addEventListener("touchend", function(e){
+        e.preventDefault();
+        game.keyUp(37);
+      });
+
+      btnRight.addEventListener("touchstart", function(e){
+        e.preventDefault();
+        game.keyDown(39); // RIGHT
+      });
+      btnRight.addEventListener("touchend", function(e){
+        e.preventDefault();
+        game.keyUp(39);
+      });
+
+      btnFire.addEventListener("touchstart", function(e){
+        e.preventDefault();
+        game.keyDown(32); // SPACE
+      });
+      btnFire.addEventListener("touchend", function(e){
+        e.preventDefault();
+        game.keyUp(32);
+      });
+    </script>
+  </body>
+</html>
