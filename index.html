@@ -2,6 +2,7 @@
 <html>
   <head>
     <title>KANG Invaders</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <link rel="stylesheet" type="text/css" href="css/core.css" />
     <link rel="stylesheet" type="text/css" href="css/typeography.css" />
     <style>
@@ -11,32 +12,43 @@
         margin: 0;
         padding: 0;
         overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background-color: black;
       }
 
       #starfield {
+        position: absolute;
+        top: 0;
+        left: 0;
         width: 100%;
         height: 100%;
         z-index: -1;
-        position: absolute;
-        left: 0;
-        top: 0;
       }
 
       #gamecontainer {
-        width: 900px;
-        margin: 0 auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
       }
 
       #gameCanvas {
-        width: 900px;
-        height: 600px;
+        width: 100%;
+        max-width: 900px;
+        height: auto;
+        aspect-ratio: 3 / 2; /* Maintenir le ratio 900x600 */
+        background-color: black;
       }
 
       /* Contrôles mobiles */
       #mobileControls {
-        width: 900px;
-        margin: 0 auto;
-        text-align: center;
+        display: flex;
+        justify-content: center;
+        gap: 10px;
         margin-top: 10px;
       }
 
@@ -45,31 +57,30 @@
         height: 60px;
         border-radius: 50%;
         font-size: 28px;
-        margin: 0 15px;
         background: #f2f2f2;
         border: 2px solid #ccc;
         cursor: pointer;
       }
+
       #mobileControls button:active {
         background: #ddd;
       }
 
-      /* Media Query: cacher les boutons sur un appareil avec souris (desktop) */
+      /* Masquer les boutons sur desktop */
       @media (any-pointer: fine) and (hover: hover) {
         #mobileControls {
-          display: none;  /* On masque pour la version desktop */
+          display: none;
         }
       }
     </style>
   </head>
-
   <body>
     <div id="starfield"></div>
     <div id="gamecontainer">
       <canvas id="gameCanvas"></canvas>
     </div>
 
-    <!-- Boutons mobiles (cachés sur PC via la media query) -->
+    <!-- Boutons mobiles -->
     <div id="mobileControls">
       <button id="btnLeft">◀</button>
       <button id="btnFire">🔥</button>
@@ -79,81 +90,65 @@
     <script src="js/starfield.js"></script>
     <script src="js/spaceinvaders.js"></script>
     <script>
-      // 1) Lancement du starfield
-      var container = document.getElementById("starfield");
-      var starfield = new Starfield();
+      // Initialisation du starfield
+      const container = document.getElementById("starfield");
+      const starfield = new Starfield();
       starfield.initialise(container);
       starfield.start();
 
-      // 2) Canvas
-      var canvas = document.getElementById("gameCanvas");
+      // Canvas pour le jeu
+      const canvas = document.getElementById("gameCanvas");
       canvas.width = 900;
       canvas.height = 600;
 
-      // 3) Créer le jeu
-      var game = new Game();
+      // Initialiser le jeu
+      const game = new Game();
       game.initialise(canvas);
       game.start();
 
-      // 4) Événements clavier (PC)
-      window.addEventListener("keydown", function (e) {
-        var keycode = e.which || window.event.keyCode;
-        if (keycode == 37 || keycode == 39 || keycode == 32) {
-          e.preventDefault();
-        }
-        game.keyDown(keycode);
-      });
-      window.addEventListener("keyup", function (e) {
-        var keycode = e.which || window.event.keyCode;
-        game.keyUp(keycode);
-      });
-
-      // 5) Événements tactiles globaux
+      // Désactiver les événements tactiles globaux
       window.addEventListener("touchstart", function (e) {
-        game.touchstart(e);
+        e.preventDefault();
       });
-      window.addEventListener("touchend", function (e) {
-        game.touchend(e);
-      });
+
       window.addEventListener("touchmove", function (e) {
-        game.touchmove(e);
+        e.preventDefault();
       });
 
-      // 6) Boutons mobiles => touches virtuelles
-      var btnLeft = document.getElementById("btnLeft");
-      var btnRight = document.getElementById("btnRight");
-      var btnFire = document.getElementById("btnFire");
+      // Événements des boutons mobiles
+      const btnLeft = document.getElementById("btnLeft");
+      const btnRight = document.getElementById("btnRight");
+      const btnFire = document.getElementById("btnFire");
 
-      // Touchstart => activer la touche
-      btnLeft.addEventListener("touchstart", function(e) {
+      btnLeft.addEventListener("touchstart", function (e) {
         e.preventDefault();
-        game.pressedKeys[37] = true; // KEY_LEFT
-      });
-      btnRight.addEventListener("touchstart", function(e) {
-        e.preventDefault();
-        game.pressedKeys[39] = true; // KEY_RIGHT
-      });
-      btnFire.addEventListener("touchstart", function(e) {
-        e.preventDefault();
-        game.pressedKeys[32] = true; // KEY_SPACE
+        game.keyDown(37); // KEY_LEFT
       });
 
-      // Touchend => désactiver la touche
-      btnLeft.addEventListener("touchend", function(e) {
+      btnRight.addEventListener("touchstart", function (e) {
         e.preventDefault();
-        delete game.pressedKeys[37];
+        game.keyDown(39); // KEY_RIGHT
       });
-      btnRight.addEventListener("touchend", function(e) {
+
+      btnFire.addEventListener("touchstart", function (e) {
         e.preventDefault();
-        delete game.pressedKeys[39];
+        game.keyDown(32); // KEY_SPACE
       });
-      btnFire.addEventListener("touchend", function(e) {
+
+      btnLeft.addEventListener("touchend", function (e) {
         e.preventDefault();
-        delete game.pressedKeys[32];
+        game.keyUp(37);
+      });
+
+      btnRight.addEventListener("touchend", function (e) {
+        e.preventDefault();
+        game.keyUp(39);
+      });
+
+      btnFire.addEventListener("touchend", function (e) {
+        e.preventDefault();
+        game.keyUp(32);
       });
     </script>
-
-    <!-- Google Analytics (optionnel) -->
-    <!-- ... -->
   </body>
 </html>
