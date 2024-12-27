@@ -2,8 +2,6 @@
 <html>
   <head>
     <title>KANG Invaders</title>
-    <!-- (Optionnel) Pour éviter le zoom bizarre sur mobile :
-         <meta name="viewport" content="width=900, initial-scale=1.0"> -->
     <link rel="stylesheet" type="text/css" href="css/core.css" />
     <link rel="stylesheet" type="text/css" href="css/typeography.css" />
     <style>
@@ -110,8 +108,7 @@
         game.keyUp(keycode);
       });
 
-      // (SUPPRIMÉ) Événements tactiles globaux => On les enlève pour désactiver le swipe
-      /*
+      // 5) Événements tactiles globaux
       window.addEventListener("touchstart", function (e) {
         game.touchstart(e);
       });
@@ -121,7 +118,6 @@
       window.addEventListener("touchmove", function (e) {
         game.touchmove(e);
       });
-      */
 
       // 6) Boutons mobiles => touches virtuelles
       var btnLeft = document.getElementById("btnLeft");
@@ -156,5 +152,8 @@
         delete game.pressedKeys[32];
       });
     </script>
+
+    <!-- Google Analytics (optionnel) -->
+    <!-- ... -->
   </body>
 </html>
