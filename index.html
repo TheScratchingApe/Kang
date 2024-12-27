@@ -5,6 +5,7 @@
     <link rel="stylesheet" type="text/css" href="css/core.css" />
     <link rel="stylesheet" type="text/css" href="css/typeography.css" />
     <style>
+      /* Style de base pour la page */
       body,
       html {
         width: 100%;
@@ -14,20 +15,23 @@
         overflow: hidden;
       }
 
+      /* Starfield en arrière-plan */
       #starfield {
         width: 100%;
         height: 100%;
         z-index: -1;
         position: absolute;
-        left: 0;
-        top: 0;
+        left: 0px;
+        top: 0px;
       }
 
+      /* Container principal (900px) */
       #gamecontainer {
         width: 900px;
         margin: 0 auto;
       }
 
+      /* Canvas du jeu (900×600) */
       #gameCanvas {
         width: 900px;
         height: 600px;
@@ -41,6 +45,7 @@
         margin-top: 10px;
       }
 
+      /* Style des boutons mobiles */
       #mobileControls button {
         width: 60px;
         height: 60px;
@@ -55,32 +60,44 @@
         background: #ddd;
       }
 
-      /* Media Query: cacher les boutons sur un appareil avec souris (desktop) */
-      @media (any-pointer: fine) and (hover: hover) {
+      /* On masque les boutons par défaut */
+      #mobileControls {
+        display: none;
+      }
+
+      /*
+        Sur un device "mobile" (pas de hover, pointeur coarse)
+        => on affiche #mobileControls
+      */
+      @media (hover: none) and (pointer: coarse) {
         #mobileControls {
-          display: none; /* On masque pour la version desktop */
+          display: block;
         }
       }
     </style>
   </head>
 
   <body>
+    <!-- Champ d'étoiles -->
     <div id="starfield"></div>
+
+    <!-- Container du jeu -->
     <div id="gamecontainer">
       <canvas id="gameCanvas"></canvas>
     </div>
 
-    <!-- Boutons mobiles (cachés sur PC via la media query) -->
+    <!-- Boutons mobiles : cachés par défaut, affichés sur mobile -->
     <div id="mobileControls">
       <button id="btnLeft">◀</button>
       <button id="btnFire">🔥</button>
       <button id="btnRight">▶</button>
     </div>
 
+    <!-- Scripts du jeu -->
     <script src="js/starfield.js"></script>
     <script src="js/spaceinvaders.js"></script>
     <script>
-      // 1) Lancement du starfield
+      // 1) Starfield
       var container = document.getElementById("starfield");
       var starfield = new Starfield();
       starfield.initialise(container);
@@ -91,25 +108,25 @@
       canvas.width = 900;
       canvas.height = 600;
 
-      // 3) Créer le jeu
+      // 3) Création du jeu
       var game = new Game();
       game.initialise(canvas);
       game.start();
 
-      // 4) Événements clavier (PC)
+      // 4) Écouteurs clavier (PC)
       window.addEventListener("keydown", function (e) {
-        var keycode = e.which || window.event.keyCode;
+        var keycode = e.which || e.keyCode;
         if (keycode == 37 || keycode == 39 || keycode == 32) {
           e.preventDefault();
         }
         game.keyDown(keycode);
       });
       window.addEventListener("keyup", function (e) {
-        var keycode = e.which || window.event.keyCode;
+        var keycode = e.which || e.keyCode;
         game.keyUp(keycode);
       });
 
-      // 5) Événements tactiles globaux
+      // 5) Écouteurs tactiles globaux
       window.addEventListener("touchstart", function (e) {
         game.touchstart(e);
       });
@@ -120,12 +137,12 @@
         game.touchmove(e);
       });
 
-      // 6) Boutons mobiles => touches virtuelles
+      // 6) Boutons mobiles : "Left", "Fire", "Right"
       var btnLeft = document.getElementById("btnLeft");
       var btnRight = document.getElementById("btnRight");
       var btnFire = document.getElementById("btnFire");
 
-      // Touchstart => activer la touche
+      // Touchstart => activer la touche virtuelle
       btnLeft.addEventListener("touchstart", function (e) {
         e.preventDefault();
         game.pressedKeys[37] = true; // KEY_LEFT
@@ -139,7 +156,7 @@
         game.pressedKeys[32] = true; // KEY_SPACE
       });
 
-      // Touchend => désactiver la touche
+      // Touchend => désactiver la touche virtuelle
       btnLeft.addEventListener("touchend", function (e) {
         e.preventDefault();
         delete game.pressedKeys[37];
@@ -154,7 +171,9 @@
       });
     </script>
 
-    <!-- Google Analytics (optionnel) -->
-    <!-- ... -->
+    <!-- Google Analytics (optionnel, inchangé) -->
+    <!-- <script type="text/javascript">
+      // ...
+    </script> -->
   </body>
 </html>
