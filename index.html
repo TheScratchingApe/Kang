@@ -1,59 +1,45 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>KANG Invaders</title>
-    <!-- Affiche correctement le site sur mobile (viewport réel) -->
+    <title>KANG Invaders - Responsive</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" type="text/css" href="css/core.css" />
-    <link rel="stylesheet" type="text/css" href="css/typeography.css" />
     <style>
-      /* Styles de base */
       body, html {
-        width: 100%;
-        height: 100%;
-        margin: 0;
-        padding: 0;
+        margin: 0; padding: 0;
+        width: 100%; height: 100%;
         overflow: hidden;
       }
-
-      /* Fond étoilé */
       #starfield {
-        width: 100%;
-        height: 100%;
-        z-index: -1;
         position: absolute;
-        left: 0;
-        top: 0;
+        left: 0; top: 0;
+        width: 100%; height: 100%;
+        z-index: -1;
       }
 
-      /* Container de 900px pour le jeu */
-      #gamecontainer {
-        width: 900px;
+      /* Wrapper qui gère le ratio 900x600 => 3:2 => 66.66% */
+      #canvasWrapper {
+        width: 100%;
+        max-width: 900px;
         margin: 0 auto;
+        position: relative;
+        padding-bottom: 66.6667%;
       }
-
-      /* Canvas du jeu (900×600) */
       #gameCanvas {
-        width: 900px;
-        height: 600px;
+        position: absolute;
+        width: 100%; 
+        height: 100%;
       }
 
-      /* Boutons mobiles */
+      /* Les boutons mobiles */
       #mobileControls {
-        width: 900px;
-        margin: 0 auto;
+        width: 100%;
+        max-width: 900px;
+        margin: 10px auto 0 auto;
         text-align: center;
-        margin-top: 10px;
-
-        /* Toujours visibles */
-        display: block;
       }
-
-      /* Style des boutons */
       #mobileControls button {
-        width: 60px;
-        height: 60px;
+        width: 60px; height: 60px;
         border-radius: 50%;
         font-size: 28px;
         margin: 0 15px;
@@ -61,52 +47,55 @@
         border: 2px solid #ccc;
         cursor: pointer;
       }
-      #mobileControls button:active {
-        background: #ddd;
-      }
     </style>
   </head>
-
   <body>
-    <!-- Champ d'étoiles -->
     <div id="starfield"></div>
 
-    <!-- Container principal -->
-    <div id="gamecontainer">
+    <!-- 1) Canvas wrapper ratio 3:2 -->
+    <div id="canvasWrapper">
       <canvas id="gameCanvas"></canvas>
     </div>
 
-    <!-- Boutons (toujours visibles) -->
+    <!-- 2) Boutons mobiles (toujours visibles) -->
     <div id="mobileControls">
       <button id="btnLeft">◀</button>
       <button id="btnFire">🔥</button>
       <button id="btnRight">▶</button>
     </div>
 
-    <!-- Scripts du jeu -->
     <script src="js/starfield.js"></script>
     <script src="js/spaceinvaders.js"></script>
+
     <script>
-      // 1) Lancement du starfield
-      var container = document.getElementById("starfield");
+      // Starfield
       var starfield = new Starfield();
+      var container = document.getElementById("starfield");
       starfield.initialise(container);
       starfield.start();
 
-      // 2) Canvas
+      // Canvas
       var canvas = document.getElementById("gameCanvas");
-      canvas.width = 900;
-      canvas.height = 600;
+      // On va caler la taille interne du canvas sur sa taille affichée
+      canvas.width = canvas.clientWidth;
+      canvas.height = canvas.clientHeight;
 
-      // 3) Création et lancement du jeu
+      // Initialiser le jeu
       var game = new Game();
       game.initialise(canvas);
       game.start();
 
-      // 4) Gestion clavier (PC)
+      // (Optionnel) Gérer le resize
+      window.addEventListener('resize', function() {
+        canvas.width = canvas.clientWidth;
+        canvas.height = canvas.clientHeight;
+        // éventuellement reconfigurer game.width, game.height, etc.
+      });
+
+      // Clavier PC
       window.addEventListener("keydown", function(e) {
         var keycode = e.which || e.keyCode;
-        if (keycode == 37 || keycode == 39 || keycode == 32) {
+        if (keycode === 37 || keycode === 39 || keycode === 32) {
           e.preventDefault();
         }
         game.keyDown(keycode);
@@ -116,51 +105,43 @@
         game.keyUp(keycode);
       });
 
-      // 5) Événements tactiles globaux
-      window.addEventListener("touchstart", function(e) {
-        game.touchstart(e);
-      });
-      window.addEventListener("touchend", function(e) {
-        game.touchend(e);
-      });
-      window.addEventListener("touchmove", function(e) {
-        game.touchmove(e);
-      });
+      // Tactile global
+      window.addEventListener("touchstart", function(e) { game.touchstart(e); });
+      window.addEventListener("touchend",   function(e) { game.touchend(e); });
+      window.addEventListener("touchmove",  function(e) { game.touchmove(e); });
 
-      // 6) Boutons virtuels => touches
-      var btnLeft  = document.getElementById("btnLeft");
+      // Boutons mobiles => touches virtuelles
+      var btnLeft = document.getElementById("btnLeft");
+      var btnFire = document.getElementById("btnFire");
       var btnRight = document.getElementById("btnRight");
-      var btnFire  = document.getElementById("btnFire");
 
-      // Touchstart => activer la touche
-      btnLeft.addEventListener("touchstart", function(e) {
+      // touchstart
+      btnLeft.addEventListener("touchstart", function(e){
         e.preventDefault();
-        game.pressedKeys[37] = true; // KEY_LEFT
+        game.pressedKeys[37] = true;
       });
-      btnFire.addEventListener("touchstart", function(e) {
+      btnFire.addEventListener("touchstart", function(e){
         e.preventDefault();
-        game.pressedKeys[32] = true; // KEY_SPACE
+        game.pressedKeys[32] = true;
       });
-      btnRight.addEventListener("touchstart", function(e) {
+      btnRight.addEventListener("touchstart", function(e){
         e.preventDefault();
-        game.pressedKeys[39] = true; // KEY_RIGHT
+        game.pressedKeys[39] = true;
       });
 
-      // Touchend => désactiver la touche
-      btnLeft.addEventListener("touchend", function(e) {
+      // touchend
+      btnLeft.addEventListener("touchend", function(e){
         e.preventDefault();
         delete game.pressedKeys[37];
       });
-      btnFire.addEventListener("touchend", function(e) {
+      btnFire.addEventListener("touchend", function(e){
         e.preventDefault();
         delete game.pressedKeys[32];
       });
-      btnRight.addEventListener("touchend", function(e) {
+      btnRight.addEventListener("touchend", function(e){
         e.preventDefault();
         delete game.pressedKeys[39];
       });
     </script>
-
-    <!-- Google Analytics ou autre, optionnel -->
   </body>
 </html>
